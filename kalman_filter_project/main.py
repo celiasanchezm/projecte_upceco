@@ -28,7 +28,7 @@ def run_filter(ground_truth, sensors, config):
     # so you can see the filter converge.
     x0 = [0.0, 0.0, 0.0, 0.0]
     P0 = np.diag([1.0, 1.0, 0.1, 1.0])
-    Q = np.diag([0.1, 0.1, 0.05, 0.2])                              # tune these
+    Q = np.diag([0.0001, 0.0001, 0.05, 0.2])                              # tune these
     R = np.diag([config.gps_pos_std ** 2, config.gps_pos_std ** 2])  # starting point
 
     kf = KalmanFilter(x0, P0, Q, R, config.wheelbase)

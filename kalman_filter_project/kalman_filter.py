@@ -17,7 +17,7 @@ class KalmanFilter:
         self.x = np.array(initial_state, dtype=float)
         self.P = np.array(initial_covariance, dtype=float) #uncertainty of the estimate
         self.Q = np.array(Q, dtype=float) #error of the predict process 
-        self.R = np.array(R, dtype=float) #GPS error
+        self.R = np.array(R, dtype=float) #GPS noise
         self.wheelbase = wheelbase
 
     def predict(self, u, dt):
