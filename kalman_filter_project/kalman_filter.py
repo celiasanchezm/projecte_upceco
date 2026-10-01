@@ -16,8 +16,8 @@ class KalmanFilter:
     def __init__(self, initial_state, initial_covariance, Q, R, wheelbase):
         self.x = np.array(initial_state, dtype=float)
         self.P = np.array(initial_covariance, dtype=float) #uncertainty of the estimate
-        self.Q = np.array(Q, dtype=float)
-        self.R = np.array(R, dtype=float)
+        self.Q = np.array(Q, dtype=float) #error of the predict process 
+        self.R = np.array(R, dtype=float) #GPS error
         self.wheelbase = wheelbase
 
     def predict(self, u, dt):
@@ -37,20 +37,31 @@ class KalmanFilter:
 
         self.x = np.array([x_new, y_new, phi_new, v_new]) #assign the new variables to the state vector
 
-        #F is the matrix for propagation of the covariance when doing an estimation
-        F = np.array([
+        #A is the matrix for propagation of the covariance when doing an estimation
+        A = np.array([
             [1, 0, -v * np.sin(phi) * dt, np.cos(phi) * dt],
             [0, 1,  v * np.cos(phi) * dt, np.sin(phi) * dt],
             [0, 0, 1, 0],
             [0, 0, 0, 1]
         ])
 
-        self.P = F @ self.P @ F.T + self.Q #we propagate the last P thru F and sum the covariance of the process
+        self.P = A @ self.P @ A.T + self.Q #we propagate the last P thru A and sum the covariance of the process
         
 
     def update_gps(self, z):
         """Update step: correct self.x and self.P using a GPS position """
-        raise NotImplementedError(
-            "Implement the update step here (see sections 1.2 and 1.3 "
-            "of the project statement and the Estimation training script)."
-        )
+        C = np.array([ #matrix for intermediation
+            [1,0,0,0],
+            [0,1,0,0]
+        ])
+        #kalman gain: (%trust)
+        S = C @ self.P @ C.T + self.R #K formula denominator
+        K = self.P @ C.T @ np.linalg.inv(S) #K formula for kalman gain 
+
+        #update state:
+        y = z - C @ self.x #error between GPS and prediction
+        self.x = self.x + K @ y #update state by adding to it the correction [kalman gain (trust%) times error]
+
+        #update P (covariance)
+        I = np.eye(4) #for by for identity matrix 
+        self.P = (I - K @ C) @ self.P #updatig P by multiplying last known P for the ()
