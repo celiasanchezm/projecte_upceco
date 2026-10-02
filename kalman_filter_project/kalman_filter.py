@@ -45,7 +45,7 @@ class KalmanFilter:
             [0, 0, 0, 1]
         ])
 
-        self.P = A @ self.P @ A.T + self.Q #we propagate the last P thru A and sum the covariance of the process
+        self.P = A @ self.P @ A.T + self.Q #we propagate the last P through A and sum the covariance of the process
         
 
     def update_gps(self, z):
@@ -63,5 +63,5 @@ class KalmanFilter:
         self.x = self.x + K @ y #update state by adding to it the correction [kalman gain (trust%) times error]
 
         #update P (covariance)
-        I = np.eye(4) #for by for identity matrix 
+        I = np.eye(4) #four by four identity matrix 
         self.P = (I - K @ C) @ self.P #updatig P by multiplying last known P for the ()
